@@ -1,0 +1,27 @@
+# Don't include node_modules in Docker context
+node_modules
+npm-debug.log
+
+# Build output
+build
+
+# Environment files
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# IDE files
+.vscode
+.idea
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Git
+.git
+.gitignore
+
+# Testing
+coverage
