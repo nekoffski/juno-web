@@ -20,7 +20,7 @@ interface WeatherData {
 }
 
 // Read from environment variables
-const API_PORT = 8080;
+const API_PORT = 6610;
 
 const getApiBaseUrl = () => {
   let host = process.env.REACT_APP_JUNO_PROXY || "REACT_APP_JUNO_PROXY_PLACEHOLDER";

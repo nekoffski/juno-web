@@ -24,7 +24,7 @@ interface RGB {
 }
 
 // Read from environment variables (must use REACT_APP_ prefix for CRA)
-const API_PORT = 8080;
+const API_PORT = 6610;
 
 const getApiBaseUrl = () => {
   let host = process.env.REACT_APP_JUNO_PROXY || "REACT_APP_JUNO_PROXY_PLACEHOLDER";
