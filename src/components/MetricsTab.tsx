@@ -20,9 +20,15 @@ interface WeatherData {
 }
 
 // Read from environment variables
+const API_PORT = 8080;
+
 const getApiBaseUrl = () => {
-  const host = process.env.REACT_APP_JUNO_PROXY || "REACT_APP_JUNO_PROXY_PLACEHOLDER";
-  return `http://${host}/juno-metric-service`;
+  let host = process.env.REACT_APP_JUNO_PROXY || "REACT_APP_JUNO_PROXY_PLACEHOLDER";
+  // Replace 0.0.0.0 with localhost for browser compatibility
+  if (host === '0.0.0.0') {
+    host = 'localhost';
+  }
+  return `http://${host}:${API_PORT}/juno-metric-service`;
 };
 
 const API_BASE_URL = getApiBaseUrl();

@@ -6,7 +6,7 @@
 set -e
 
 # Default value if not provided
-REACT_APP_JUNO_PROXY=${REACT_APP_JUNO_PROXY:-"localhost:8080"}
+REACT_APP_JUNO_PROXY=${REACT_APP_JUNO_PROXY:-"localhost"}
 
 echo "========================================="
 echo "Injecting runtime environment variables"
