@@ -6,6 +6,7 @@ This document describes the REST API for the Juno home automation system.
 
 - [Supervisor Service](#supervisor-service)
 - [Device Connector Service](#device-connector-service)
+- [Scheduler Service](#scheduler-service)
 - [Metric Service](#metric-service)
 - [Data Models](#data-models)
 
@@ -342,8 +343,7 @@ Create a new device group.
 ```json
 {
   "name": "Living Room",
-  "devices": [1, 2, 3],
-  "capabilities": ["on", "off", "toggle"]
+  "devices": [1, 2, 3]
 }
 ```
 
@@ -354,6 +354,11 @@ Create a new device group.
   "id": 1
 }
 ```
+
+**Notes:**
+
+- Capabilities are automatically determined from the common capabilities of all devices in the group
+- Use `DeviceGroupDefinition` for creation
 
 ---
 
@@ -390,8 +395,7 @@ Update a device group.
 ```json
 {
   "name": "Living Room Updated",
-  "devices": [1, 2],
-  "capabilities": ["on", "off"]
+  "devices": [1, 2]
 }
 ```
 
@@ -458,6 +462,170 @@ Execute an action on all devices in a group.
 - Each device in the group must support the requested action
 - Returns 400 if the group doesn't support the action
 - Returns 404 if the group doesn't exist
+
+---
+
+## Scheduler Service
+
+Base namespace: `juno::api`
+
+### Health Check
+
+#### GET `/health`
+
+Get the health status of the scheduler service.
+
+**Request:** None
+
+**Response:** `ServiceStatus`
+
+```json
+{
+  "healthy": true
+}
+```
+
+---
+
+### Trigger Commands
+
+#### GET `/trigger/commands`
+
+Get the list of available trigger commands and their parameter specifications.
+
+**Request:** None
+
+**Response:** `TriggerCommandSpecs`
+
+```json
+{
+  "commands": [
+    {
+      "name": "turn_on_lights",
+      "params": ["group_id", "brightness"]
+    },
+    {
+      "name": "set_temperature",
+      "params": ["device_id", "temperature"]
+    }
+  ]
+}
+```
+
+---
+
+### Trigger Management
+
+#### GET `/trigger`
+
+List all triggers.
+
+**Request:** None
+
+**Response:** `Triggers`
+
+```json
+{
+  "triggers": {
+    "1": {
+      "id": 1,
+      "body": {
+        "name": "Morning Lights",
+        "command": {
+          "name": "turn_on_lights",
+          "params": {
+            "group_id": 1,
+            "brightness": 80
+          }
+        },
+        "schedule": "0 7 * * *",
+        "condition": "temperature < 20",
+        "enabled": true
+      },
+      "status": "ok",
+      "statusDescription": ""
+    }
+  }
+}
+```
+
+#### POST `/trigger`
+
+Create a new trigger.
+
+**Request:** `TriggerBody`
+
+```json
+{
+  "name": "Morning Lights",
+  "command": {
+    "name": "turn_on_lights",
+    "params": {
+      "group_id": 1,
+      "brightness": 80
+    }
+  },
+  "schedule": "0 7 * * *",
+  "condition": "temperature < 20",
+  "enabled": true
+}
+```
+
+**Response:** `TriggerId`
+
+```json
+{
+  "id": 1
+}
+```
+
+**Notes:**
+
+- `schedule` uses cron format or natural language (e.g., "now + 5 minutes", "today 15:45")
+- `condition` is optional and can be used to add conditional logic
+- `enabled` is optional (defaults to true)
+
+---
+
+#### PUT `/trigger/id/{id}`
+
+Update an existing trigger.
+
+**Path Parameters:**
+
+- `id` (u64): Trigger ID
+
+**Request:** `TriggerBody`
+
+```json
+{
+  "name": "Morning Lights Updated",
+  "command": {
+    "name": "turn_on_lights",
+    "params": {
+      "group_id": 1,
+      "brightness": 90
+    }
+  },
+  "schedule": "0 6 * * *",
+  "condition": "temperature < 18",
+  "enabled": true
+}
+```
+
+**Response:** None
+
+#### DELETE `/trigger/id/{id}`
+
+Delete a trigger.
+
+**Path Parameters:**
+
+- `id` (u64): Trigger ID
+
+**Request:** None
+
+**Response:** None
 
 ---
 
@@ -664,7 +832,101 @@ Enum: `"online"`, `"offline"`
 
 ---
 
+### Scheduler Models
+
+#### Status
+
+Enum values: `"ok"`, `"error"`
+
+#### TriggerCommandSpec
+
+```json
+{
+  "name": string,
+  "params": [string]
+}
+```
+
+#### TriggerCommandSpecs
+
+```json
+{
+  "commands": [TriggerCommandSpec]
+}
+```
+
+#### TriggerCommand
+
+```json
+{
+  "name": string,
+  "params": object
+}
+```
+
+#### TriggerBody
+
+```json
+{
+  "name": string,
+  "command": TriggerCommand,
+  "schedule": string,
+  "condition": Optional<string>,
+  "enabled": Optional<bool>
+}
+```
+
+**Notes:**
+
+- `condition` is optional
+- `enabled` is optional and defaults to true
+
+#### Trigger
+
+```json
+{
+  "id": u64,
+  "body": TriggerBody,
+  "status": Status,
+  "statusDescription": string
+}
+```
+
+#### Triggers
+
+```json
+{
+  "triggers": {
+    "id": Trigger
+  }
+}
+```
+
+#### TriggerId
+
+```json
+{
+  "id": u64
+}
+```
+
+---
+
 ### Device Group Models
+
+#### DeviceGroupDefinition
+
+```json
+{
+  "name": string,
+  "devices": [u64]
+}
+```
+
+**Notes:**
+
+- Used for creating and updating device groups
+- Capabilities are automatically determined from common device capabilities
 
 #### DeviceGroup
 
@@ -800,6 +1062,7 @@ The following type notation is used throughout this specification:
 - `json` / `object` - Arbitrary JSON object
 - `Array<T>` - Array of type T
 - `Dict<K, V>` - Dictionary/map with key type K and value type V
+- `Optional<T>` - Optional type T (may be null or omitted)
 - `None` - No request/response body
 
 ---

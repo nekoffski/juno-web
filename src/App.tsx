@@ -6,7 +6,7 @@ import Tabs from "./components/Tabs";
 import DevicesTab from "./components/DevicesTab";
 import MetricsTab from "./components/MetricsTab";
 import EventsTab from "./components/EventsTab";
-import RulesTab from "./components/RulesTab";
+import TriggersTab from "./components/TriggersTab";
 
 interface Device {
   id: number;
@@ -158,7 +158,7 @@ const App: React.FC = () => {
         {activeTab === "devices" && <DevicesTab />}
         {activeTab === "metrics" && <MetricsTab />}
         {activeTab === "events" && <EventsTab events={events} connected={connected} />}
-        {activeTab === "rules" && <RulesTab />}
+        {activeTab === "triggers" && <TriggersTab />}
       </Container>
 
       <Snackbar

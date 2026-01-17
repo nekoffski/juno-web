@@ -31,11 +31,11 @@ const Tabs: React.FC<TabsProps> = ({ activeTab, setActiveTab }) => {
         Events
       </Button>
       <Button
-        onClick={() => setActiveTab("rules")}
-        variant={activeTab === "rules" ? "contained" : "outlined"}
+        onClick={() => setActiveTab("triggers")}
+        variant={activeTab === "triggers" ? "contained" : "outlined"}
         sx={{ margin: "0 5px" }}
       >
-        Rules
+        Triggers
       </Button>
     </Box>
   );
